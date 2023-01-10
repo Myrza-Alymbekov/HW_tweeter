@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from rest_framework import authentication, viewsets
+from rest_framework import authentication, viewsets, status
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from tweeter.models import Tweet, User, Comment
 from tweeter.permissions import IsOwnerOrReadOnly
@@ -26,10 +28,32 @@ class TweetViewSet(LikedMixin, DislikedMixin, viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrReadOnly, IsAuthenticatedOrReadOnly)
     pagination_class = ListPagination
 
+    @action(methods=['POST'], detail=True)
+    def comment(self, request, pk=None):
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(tweet=self.get_object(),
+                            user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CommentViewSet(LikedMixin, viewsets.ModelViewSet):
+    @action(methods=['GET'], detail=True)
+    def view_comments(self, request, pk=None):
+        queryset = Comment.objects.filter(tweet_id=self.get_object().id)
+        serializer = CommentSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+
+class CommentViewSet(LikedMixin, DislikedMixin, viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsOwnerOrReadOnly, IsAuthenticatedOrReadOnly)
     pagination_class = ListPagination
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
 

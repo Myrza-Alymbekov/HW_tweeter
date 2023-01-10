@@ -43,7 +43,6 @@ class DislikedMixin:
         api.remove_like(obj, request.user)
         api.add_dislike(obj, request.user)
 
-
         return Response("Ты поставил дизлайк!")
 
     # @action(detail=True, methods=['post'])

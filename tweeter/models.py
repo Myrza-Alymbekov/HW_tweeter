@@ -21,7 +21,7 @@ class Dislike(models.Model):
 
 
 class Tweet(models.Model):
-    title = models.CharField(max_length=255)
+    text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tweets')
     likes = GenericRelation(Like)
@@ -44,6 +44,8 @@ class Comment(models.Model):
     date = models.DateField(auto_now_add=True)
     tweet = models.ForeignKey(Tweet, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    likes = GenericRelation(Like)
+    dislikes = GenericRelation(Dislike)
 
     def __str__(self):
         return f'{self.user.username} - {self.tweet.title} - {self.text}'

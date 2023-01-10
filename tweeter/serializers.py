@@ -33,8 +33,8 @@ class TweetSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Comment
         fields = "__all__"
+        read_only_fields = ['tweet', 'user']
