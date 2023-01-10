@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework import authentication, viewsets, status
+from rest_framework import authentication, viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
 from tweeter.models import Tweet, User, Comment
 from tweeter.permissions import IsOwnerOrReadOnly
@@ -46,7 +47,12 @@ class TweetViewSet(LikedMixin, DislikedMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CommentViewSet(LikedMixin, DislikedMixin, viewsets.ModelViewSet):
+class CommentViewSet(LikedMixin, DislikedMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
+                     mixins.ListModelMixin,
+                     GenericViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsOwnerOrReadOnly, IsAuthenticatedOrReadOnly)
@@ -54,6 +60,3 @@ class CommentViewSet(LikedMixin, DislikedMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
-
