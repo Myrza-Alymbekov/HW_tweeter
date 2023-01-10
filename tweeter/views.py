@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from tweeter.models import Tweet, User, Comment
 from tweeter.permissions import IsOwnerOrReadOnly
 from tweeter.serializers import TweetSerializer, UserSerializer, CommentSerializer
-from tweeter.mixins import LikedMixin
+from tweeter.mixins import LikedMixin, DislikedMixin
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -20,7 +20,7 @@ class ListPagination(PageNumberPagination):
     max_page_size = 1000
 
 
-class TweetViewSet(LikedMixin, viewsets.ModelViewSet):
+class TweetViewSet(LikedMixin, DislikedMixin, viewsets.ModelViewSet):
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
     permission_classes = (IsOwnerOrReadOnly, IsAuthenticatedOrReadOnly)
