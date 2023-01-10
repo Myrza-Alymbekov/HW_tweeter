@@ -10,17 +10,18 @@ class LikedMixin:
     def like(self, request, pk=None):
         obj = self.get_object()
         if api.is_fan_like(obj, request.user):
-            return Response('Ты уже лайкнул')
+            api.remove_like(obj, request.user)
+            return Response('Ты забрал свой лайк!')
         api.add_like(obj, request.user)
 
         return Response("Дякую за лайк!")
 
-    @action(detail=True, methods=['get'])
-    def unlike(self, request, pk=None):
-        obj = self.get_object()
-        api.remove_like(obj, request.user)
-
-        return Response("Ты забрал свой лайк!")
+    # @action(detail=True, methods=['get'])
+    # def unlike(self, request, pk=None):
+    #     obj = self.get_object()
+    #     api.remove_like(obj, request.user)
+    #
+    #     return Response("Ты забрал свой лайк!")
 
     @action(detail=True, methods=['get'])
     def get_fans_like(self, request, pk=None):
